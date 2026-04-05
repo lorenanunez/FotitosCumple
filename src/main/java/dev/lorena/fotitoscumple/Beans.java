@@ -18,7 +18,7 @@ public class Beans {
     S3Client s3Client() {
         return S3Client
             .builder()
-            .region(Region.SA_EAST_1)
+            .region(Region.US_EAST_2)
             .credentialsProvider(DefaultCredentialsProvider.builder().build())
             .build();
     }
