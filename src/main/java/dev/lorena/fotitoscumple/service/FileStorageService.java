@@ -9,7 +9,6 @@ import java.util.concurrent.Future;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@PropertySource("classpath:aws.properties")
 public class FileStorageService {
 
     private final S3Client s3Client;
