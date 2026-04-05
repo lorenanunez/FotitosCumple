@@ -1,0 +1,20 @@
+server:
+  servlet:
+    session:
+      tracking-modes: cookie
+
+spring:
+  servlet:
+    multipart:
+      max-file-size: 40MB
+      max-request-size: 200MB
+  application:
+    name: fotitoscumple
+  thymeleaf:
+    prefix: file:src/main/resources/templates/
+    cache: false
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
+      cache:
+        period: 0s

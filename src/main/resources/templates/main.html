@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+
+<html lang="es" xmlns:th="http://www.thymeleaf.org" data-bs-theme="dark">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Cumpleaños de Lorena</title>
+        <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" crossorigin="anonymous">
+    </head>
+
+    <body>
+      <div class="row justify-content-center g-0">
+        <div class="col-12 col-md-8 col-lg-6">
+        <!-- Sección 1: Imagen de fondo -->
+        <section>
+            <img th:src="@{/images/Gemini_Generated_Image_iza114iza114iza1.png}" alt="Cumpleaños de Lorena" class="w-100 d-block">
+        </section>
+
+        <!-- Sección 2: Texto -->
+        <section class="text-center py-4">
+            <div class="container">
+                <h1 class="display-4">Cumpleaños de Lorena</h1>
+                <p class="lead text-muted">Sube tus fotos y videos del cumple para compartirlos con todos</p>
+            </div>
+        </section>
+
+        <!-- Sección 3: Carousel de últimos media -->
+        <section th:if="${!fotos.isEmpty()}" class="py-4">
+            <div class="container">
+                <h2 class="text-center mb-4">Últimas fotos y videos</h2>
+                <div id="carouselFotos" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        <button th:each="foto, stat : ${fotos}"
+                                type="button"
+                                data-bs-target="#carouselFotos"
+                                th:attr="data-bs-slide-to=${stat.index}"
+                                th:classappend="${stat.first} ? 'active'"
+                                th:attrappend="aria-current=${stat.first} ? 'true'">
+                        </button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div th:each="foto, stat : ${fotos}"
+                             class="carousel-item"
+                             th:classappend="${stat.first} ? 'active'"
+                             th:with="url=${foto.toString()}, isVideo=${#strings.containsIgnoreCase(url, '.mp4') or #strings.containsIgnoreCase(url, '.mov') or #strings.containsIgnoreCase(url, '.avi') or #strings.containsIgnoreCase(url, '.webm')}">
+                            <img th:if="${!isVideo}" th:src="${foto}" class="d-block w-100 object-fit-contain" style="height: 70vh;" alt="Foto del cumple">
+                            <video th:if="${isVideo}" th:src="${foto}" class="d-block w-100 object-fit-contain" style="height: 70vh;" muted playsinline></video>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselFotos" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Anterior</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselFotos" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Siguiente</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección 4: Subir media -->
+        <section class="py-4 bg-body-secondary">
+            <div class="container">
+                <form th:action="@{/files/upload}" method="post" enctype="multipart/form-data" class="text-center">
+                    <div class="mb-3">
+                        <label for="media" class="form-label">Selecciona tus fotos o videos</label>
+                        <input type="file" class="form-control" id="media" name="media" accept="image/*,video/*" multiple required>
+                    </div>
+                    <button type="submit" id="btnSubir" class="btn btn-primary btn-lg">Subir</button>
+                    <div id="spinner" class="d-none text-center mt-3">
+                        <output>
+                            <div class="spinner-border text-primary">
+                                <span class="visually-hidden">Subiendo...</span>
+                            </div>
+                        </output>
+                        <p class="mt-2">Subiendo archivos...</p>
+                    </div>
+                </form>
+                <div th:if="${uploadSuccess}" class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+                    Los archivos se enviaron con éxito.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+                <div th:if="${uploadError}" class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+                    Alguno de los archivos seleccionados no es una imagen o video válido.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+                <div th:if="${uploadSizeError}" class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+                    Los archivos superan el tamaño máximo permitido (20MB por archivo).
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+                <div th:if="${networkIOError}" class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+                    Error de red al procesar los archivos. Inténtalo de nuevo.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                </div>
+            </div>
+        </section>
+        </div>
+      </div>
+        <script th:src="@{/js/bootstrap.bundle.min.js}" crossorigin="anonymous"></script>
+        <script>
+            document.querySelector('form').addEventListener('submit', function () {
+                document.getElementById('btnSubir').classList.add('d-none');
+                document.getElementById('spinner').classList.remove('d-none');
+            });
+
+            var carouselEl = document.getElementById('carouselFotos');
+            if (carouselEl) {
+                var carousel = bootstrap.Carousel.getOrCreateInstance(carouselEl);
+
+                carouselEl.addEventListener('slid.bs.carousel', function (e) {
+                    var video = e.relatedTarget.querySelector('video');
+                    if (video) {
+                        carousel.pause();
+                        video.currentTime = 0;
+                        video.play();
+                    }
+                });
+
+                carouselEl.querySelectorAll('video').forEach(function (video) {
+                    video.addEventListener('ended', function () {
+                        carousel.next();
+                    });
+                });
+
+                var firstVideo = carouselEl.querySelector('.carousel-item.active video');
+                if (firstVideo) {
+                    carousel.pause();
+                    firstVideo.play();
+                }
+            }
+        </script>
+    </body>
+</html>
